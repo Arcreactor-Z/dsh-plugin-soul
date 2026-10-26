@@ -1,0 +1,38 @@
+name: publish
+
+# 发版方式：在 GitHub 上发布 Release（tag vX.Y.Z）→ 自动跑测试 → npm publish。
+# 用 npm Trusted Publishing（OIDC）：不需要 NPM_TOKEN，也不需要 2FA OTP。
+# 前置条件（在 npm 包设置里配一次）：
+#   Package settings → Trusted publishing → 添加 GitHub Actions
+#     organization/user: CC19990113
+#     repository:        dsh-plugin-soul
+#     workflow filename: publish.yml
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # Trusted Publishing 用 OIDC 换发布凭据
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # 项目无运行时依赖；测试是纯 node
+      - name: Test
+        run: npm test
+
+      # npm 11+ 才有 trusted publishing 支持
+      - name: Upgrade npm
+        run: npm install -g npm@11
+
+      - name: Publish
+        run: npm publish --provenance --access public --registry https://registry.npmjs.org

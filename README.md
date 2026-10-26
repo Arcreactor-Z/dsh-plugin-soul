@@ -112,6 +112,11 @@ GET  /dsh-plugin-soul/api/dreams       DREAMS.md 全文
 - **攒着改**：每次改自我都会让 system prompt 的 KV cache 前缀失效（成本略涨），所以按天/按次收敛，而不是每轮追加。
 - **自我升级必须重启才生效**，插件不会自己重启 DSH。
 
+## 发版（维护者）
+
+- 打 tag `vX.Y.Z` 并在 GitHub 发布 Release → `.github/workflows/publish.yml` 会先跑 `npm test`，再用 **Trusted Publishing（OIDC）** `npm publish --provenance`，不需要 `NPM_TOKEN`、不需要 OTP。
+- 一次性前置：npm 包设置 → Trusted publishing → 绑定 GitHub Actions（user `CC19990113` / repo `dsh-plugin-soul` / workflow `publish.yml`）。
+
 ## 开发
 
 ```bash
