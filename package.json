@@ -1,8 +1,29 @@
 {
   "name": "dsh-plugin-soul",
   "version": "0.2.0",
-  "private": true,
-  "description": "DSH 自我插件：IDENTITY/SOUL/USER/RULES 每轮注入 + 受约束自改 + journal→dream 反思升格 + 自我升级（白名单/语法检查/回滚）+ 设置页「人格」tab。",
+  "description": "A writable, git-versioned self for DeepSeek Harness: IDENTITY/SOUL/USER/RULES injected every turn, gated self-editing, journal-to-dream reflection, and a Settings > Persona tab.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "persona",
+    "soul",
+    "identity",
+    "self-iteration",
+    "dreaming",
+    "settings"
+  ],
+  "license": "MIT",
+  "author": "CC19990113",
+  "homepage": "https://github.com/CC19990113/dsh-plugin-soul#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CC19990113/dsh-plugin-soul.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CC19990113/dsh-plugin-soul/issues"
+  },
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -15,13 +36,22 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "lib/**/*.js",
-    "templates/**/*.md",
+    "lib",
+    "templates",
     "cordis.patch.yml",
-    "install.mjs"
+    "install.mjs",
+    "README.md",
+    "LICENSE"
   ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node test/smoke.mjs && node test/features.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*",
+    "react": ">=18"
   },
   "dsh": {
     "bundle": {
@@ -33,6 +63,11 @@
         "@deepseek-ai/dsh-client-ui-settings"
       ],
       "platform": "web"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.2.1-rc.2": "unknown"
+      }
     }
   }
 }

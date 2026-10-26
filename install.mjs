@@ -19,7 +19,29 @@ import os from 'node:os'
 
 const APPLY = process.argv.includes('--apply')
 const PLUGIN_DIR = path.dirname(new URL(import.meta.url).pathname)
-const PROFILE_DIR = path.join(os.homedir(), '.dsh', 'profiles', 'desktop')
+
+/**
+ * 找 profile 目录：DSH_PROFILE_DIR > DSH_PROFILE > profiles 下唯一目录 > desktop。
+ * 别人的 profile 名未必叫 desktop，所以不写死。
+ */
+function resolveProfileDir() {
+  if (process.env.DSH_PROFILE_DIR) return process.env.DSH_PROFILE_DIR
+  const base = path.join(os.homedir(), '.dsh', 'profiles')
+  if (process.env.DSH_PROFILE) return path.join(base, process.env.DSH_PROFILE)
+  try {
+    const dirs = fs
+      .readdirSync(base, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+    if (dirs.includes('desktop')) return path.join(base, 'desktop')
+    if (dirs.length === 1) return path.join(base, dirs[0])
+  } catch {
+    /* 目录不存在，落到默认值后由 main 报错 */
+  }
+  return path.join(base, 'desktop')
+}
+
+const PROFILE_DIR = resolveProfileDir()
 const PATCH = path.join(PROFILE_DIR, 'cordis.patch.yml')
 const MODULES = path.join(PROFILE_DIR, 'node_modules')
 const LINK = path.join(MODULES, 'dsh-plugin-soul')
