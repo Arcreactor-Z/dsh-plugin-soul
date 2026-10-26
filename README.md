@@ -31,7 +31,7 @@
 CC19990113/dsh-plugin-soul
 ```
 
-或完整仓库地址 `https://github.com/CC19990113/dsh-plugin-soul`。装完**重启 DSH**。
+也可以填完整仓库地址 `https://github.com/CC19990113/dsh-plugin-soul`，或 npm 包名 `dsh-plugin-soul`（[npm](https://www.npmjs.com/package/dsh-plugin-soul)）。装完**重启 DSH**。
 
 **手动（开发用）**
 
