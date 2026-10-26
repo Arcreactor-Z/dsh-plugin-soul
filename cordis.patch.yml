@@ -1,0 +1,14 @@
+# dsh-plugin-soul 的 profile 补丁：把 soul 插件插入 desktop profile。
+#
+# 装法二选一：
+#   A. 让 profile 依赖这个包（package.json 加 "dsh-plugin-soul": "link:/Users/admin/www/dsh-plugin-soul"），
+#      再在 profile 的 cordis.patch.yml 里 insert 下面这段；
+#   B. 直接用官方 plugin_manager 装 bundle（会读本文件的 dsh.bundle.patch）。
+#
+# 注意：插件行改动要重启 DSH 才加载。
+- insert:
+    - id: soul
+      name: dsh-plugin-soul
+      config:
+        # 自我目录，省略则用 ~/.dsh/soul
+        # root: '/Users/admin/.dsh/soul'

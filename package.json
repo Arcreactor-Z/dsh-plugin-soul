@@ -1,0 +1,37 @@
+{
+  "name": "dsh-plugin-soul",
+  "version": "0.2.0",
+  "private": true,
+  "description": "DSH 自我插件：IDENTITY/SOUL/USER/RULES 每轮注入 + 受约束自改 + journal→dream 反思升格 + 自我升级（白名单/语法检查/回滚）+ 设置页「人格」tab。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/**/*.js",
+    "templates/**/*.md",
+    "cordis.patch.yml",
+    "install.mjs"
+  ],
+  "scripts": {
+    "test": "node test/smoke.mjs && node test/features.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ],
+      "platform": "web"
+    }
+  }
+}
