@@ -53,6 +53,11 @@
     "@deepseek-ai/dsh-tools": "*",
     "react": ">=18"
   },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
