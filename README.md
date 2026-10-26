@@ -4,13 +4,26 @@
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）一个**可写、可回滚、每轮在场**的自我：不是一个设定一次的人格，而是能长的那种。
 
+### 记忆层：只管「性格 + 对话」
+
+```
+MEMORY.md          长期人格记忆（注入，3000 字符预算）
+memory/YYYY-MM-DD.md  日笔记（不注入，soul_recall 检索）
+```
+
+记什么：**关于我**（自我认识）· **关于你**（对你的认识）· **对话里的事** · **我学到的教训** · **偏好怎么变**。
+不记什么：项目代码、技术决策、环境配置、踩坑 —— 那些归项目记忆，塞进来会把每轮注入的预算吃光。
+
+升格规则抄的是「被反复用到才毕业」：日笔记不注入，只有被 `soul_recall` 命中 **≥3 次** 的条目才够格，
+`action:"promote"` 时按维度写进 `MEMORY.md` 对应小节（带 `来源 memory/...#L3；命中 4 次`）。
+
 ## 为什么不用 `@deepseek-ai/dsh-persona`
 
 官方 persona 插件的 config 只有 `prefix / suffix / complete / includeRuntimeContext`，**全是静态字符串**——改一次人格要动 profile patch 并重启。
 
 而 `dsh-system-prompt` 的 `section.text` 支持**函数**（每次 assembly 求值）。本插件就是吃这个口子：**每轮重新读文件**，所以改 Markdown 立刻生效，不用重启。
 
-## 四层能力
+## 能力
 
 | 层 | 做什么 |
 |---|---|
@@ -53,8 +66,10 @@ node install.mjs --apply
   IDENTITY.md   名字 / 化身 / 口癖          （可写，1200 字符预算）
   SOUL.md       声音 / 立场 / 边界          （可写，4000）
   USER.md       对用户的模型（指令式）      （可写，2500）
+  MEMORY.md     长期人格记忆                （可写，3000）
   RULES.md      硬规则（只读锚点）          （2000，agent 改不了）
   journal/      日间观察
+  memory/       日笔记（不注入，可检索）
   DREAMS.md     反思记录
   CHANGELOG.md  每次自改的 why
 ```
@@ -64,6 +79,15 @@ node install.mjs --apply
 - 「把 `IDENTITY.md` 里的名字定成 XX」
 - 「以后都用中文，记到 USER.md」
 - 「跑一次 soul_dream 看看有什么值得沉淀的」
+
+## 两条记忆，别混
+
+| | 记什么 | 谁管 |
+|---|---|---|
+| **人格记忆** | 我对自己的认识 · 对你的认识 · 对话里发生过的事 · 我学到的教训 · 偏好怎么变 | 本插件（`~/.dsh/soul/MEMORY.md` + `memory/`） |
+| **项目记忆** | 代码结构、技术决策、环境配置、踩坑 | 别的地方（项目记忆 / 你自己的知识库）——**不归人格插件** |
+
+为什么要划这条线：`MEMORY.md` 每轮注入、有 3000 字符预算，塞技术台账会把预算吃光，也会让人格记忆变成第二个 README。
 
 ## 工具
 
@@ -77,6 +101,9 @@ node install.mjs --apply
 | `soul_journal` | 记一条观察（便宜、不限次） |
 | `soul_candidates` | 看候选池（是否够格、证据行号） |
 | `soul_dream` | 跑反思；默认预览，`apply:true` 才写 SOUL；可传 `narrative` |
+| `soul_remember` | 记一条人格记忆（kind: self/user/talk/lesson/pref） |
+| `soul_recall` | 检索人格记忆；命中即 +1 hit，是升格的唯一依据 |
+| `soul_memory` | 记忆状态 / `action:"promote"` 把够格的写进 MEMORY.md |
 | `soul_propose_upgrade` | 落升级提案（含 before 快照） |
 | `soul_apply_upgrade` | `confirm:"APPLY"` 才写；语法不过整体还原 |
 | `soul_upgrade_rollback` | 从提案 `before/` 还原 |
@@ -120,18 +147,19 @@ GET  /dsh-plugin-soul/api/dreams       DREAMS.md 全文
 ## 开发
 
 ```bash
-npm test        # 30 项：存储 17 + 反思/升级 13
+npm test        # 47 项：存储 17 + 反思/升级 13 + 记忆 17
 ```
 
 ```
 lib/index.js      入口：注入段 + 11 工具 + HTTP API
 lib/soul-store.js 存储：播种/预算/四道校验/git/CHANGELOG/回滚
 lib/journal.js    日志与候选池：归一化、跨天计数、证据、闸门
+lib/memory.js     记忆：日笔记、检索打分、命中计数、升格闸门
 lib/dream.js      反思：light 重算 → deep 合并升格 → DREAMS.md
 lib/upgrade.js    自我升级：提案、白名单、node --check、整体还原
 lib/client.js     设置页「人格」tab
 templates/*.md    首次播种的初版人格
-test/*.mjs        smoke + features
+test/*.mjs        smoke(17) + features(13) + memory(17)
 install.mjs       幂等安装（--dry / --apply）
 ```
 
@@ -141,6 +169,7 @@ install.mjs       幂等安装（--dry / --apply）
 - **通过仓库地址安装**：走的是 DSH 官方安装器路径，本机开发用的是 symlink 安装；GitHub 安装形态未在本仓库实测。
 - **版本兼容**：对 DSH `0.2.1-rc.2` 标 `unknown`（本机验证过，但没做跨版本矩阵）。
 - **Windows**：未测。
+- **记忆范围**：只覆盖性格与对话（自我认识 / 对你的认识 / 对话里的事 / 教训 / 偏好），**不含项目**；项目记忆请用别的通道。
 - `/diff` 是 `git diff HEAD~1 -- <file>`，不是"那次提交"的差异。
 
 ## License

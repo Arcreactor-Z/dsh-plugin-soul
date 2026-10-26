@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-soul",
-  "version": "0.2.0",
-  "description": "A writable, git-versioned self for DeepSeek Harness: IDENTITY/SOUL/USER/RULES injected every turn, gated self-editing, journal-to-dream reflection, and a Settings > Persona tab.",
+  "version": "0.3.0",
+  "description": "A writable, git-versioned self for DeepSeek Harness: IDENTITY/SOUL/USER/RULES injected every turn, a persona-only memory layer (about-me / about-you / conversation, never project details), gated self-editing, journal-to-dream reflection, and a Settings persona tab.",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -47,7 +47,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node test/smoke.mjs && node test/features.mjs"
+    "test": "node test/smoke.mjs && node test/features.mjs && node test/memory.mjs"
   },
   "peerDependencies": {
     "@deepseek-ai/dsh-tools": "*",
